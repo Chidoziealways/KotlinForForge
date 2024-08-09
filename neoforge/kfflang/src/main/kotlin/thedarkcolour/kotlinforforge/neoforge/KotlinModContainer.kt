@@ -59,7 +59,7 @@ public class KotlinModContainer(
                 LOGGER.trace(Logging.LOADING, "Loaded modclass {} with {}", cls.name, cls.classLoader)
             } catch (t: Throwable) {
                 LOGGER.error(Logging.LOADING, "Failed to load class {}", entrypoint, t)
-                throw ModLoadingException(ModLoadingIssue.error("fml.modloading.failedtoloadmodclass").withCause(t).withAffectedMod(info))
+                throw ModLoadingException(ModLoadingIssue.error("fml.modloadingissue.failedtoloadmodclass").withCause(t).withAffectedMod(info))
             }
         }
     }
@@ -119,7 +119,7 @@ public class KotlinModContainer(
                     }
                 }
                 LOGGER.error(Logging.LOADING, "Failed to create mod instance. ModID: {}, class {}", getModId(), modClass.name, throwable)
-                throw ModLoadingException(ModLoadingIssue.error("fml.modloading.failedtoloadmod", throwable).withCause(throwable).withAffectedMod(modInfo))
+                throw ModLoadingException(ModLoadingIssue.error("fml.modloadingissue.failedtoloadmod", throwable).withCause(throwable).withAffectedMod(modInfo))
             }
 
             try {
@@ -129,7 +129,7 @@ public class KotlinModContainer(
                 LOGGER.trace(Logging.LOADING, "Completed Automatic Kotlin event subscribers for {}", getModId())
             } catch (throwable: Throwable) {
                 LOGGER.error(Logging.LOADING, "Failed to register Automatic Kotlin subscribers. ModID: {}, class {}", getModId(), modClass.name, throwable)
-                throw ModLoadingException(ModLoadingIssue.error("fml.modloading.failedtoloadmod", throwable).withCause(throwable).withAffectedMod(modInfo))
+                throw ModLoadingException(ModLoadingIssue.error("fml.modloadingissue.failedtoloadmod", throwable).withCause(throwable).withAffectedMod(modInfo))
             }
         }
 

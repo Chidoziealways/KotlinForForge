@@ -48,7 +48,7 @@ public class KotlinLanguageLoader : IModLanguageLoader {
                 val modid = data.annotationData.get("value")
 
                 if (!modids.contains(modid)) {
-                    reporter.addIssue(ModLoadingIssue.error("fml.modloading.javafml.dangling_entrypoint", modid, data.clazz.className, file.filePath).withAffectedModFile(file))
+                    reporter.addIssue(ModLoadingIssue.error("fml.modloadingissue.javafml.dangling_entrypoint", modid, data.clazz.className, file.filePath).withAffectedModFile(file))
                 }
             }
     }
