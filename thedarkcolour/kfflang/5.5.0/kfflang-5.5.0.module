@@ -1,0 +1,149 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "thedarkcolour",
+    "module": "kfflang",
+    "version": "5.5.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.7"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 21,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-reflect",
+          "version": {
+            "requires": "2.0.10"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.0.10"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib-jdk7",
+          "version": {
+            "requires": "2.0.10"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib-jdk8",
+          "version": {
+            "requires": "2.0.10"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-coroutines-core",
+          "version": {
+            "requires": "1.8.1"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-coroutines-core-jvm",
+          "version": {
+            "requires": "1.8.1"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-coroutines-jdk8",
+          "version": {
+            "requires": "1.8.1"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-serialization-core",
+          "version": {
+            "requires": "1.7.1"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-serialization-json",
+          "version": {
+            "requires": "1.7.1"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "kfflang-5.5.0.jar",
+          "url": "kfflang-5.5.0.jar",
+          "size": 23497,
+          "sha512": "e2d58807c13c2fd0faaaf7c7795a52d5381af4d72997e8332310a4a778a612170bdeeb0f940f329b9d83edf9b6f963c4d9610fd64dba0c32762b7e136a05db06",
+          "sha256": "79727cca719a50c6e11fa4134f005a8c764024fb912252ffad0563bbe5aa5842",
+          "sha1": "f17410fc13c90612cc3dc2d59dd7c545dcda3277",
+          "md5": "1022388b5178e9e884d4e5a8cd52f97f"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 21,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "kfflang-5.5.0.jar",
+          "url": "kfflang-5.5.0.jar",
+          "size": 23497,
+          "sha512": "e2d58807c13c2fd0faaaf7c7795a52d5381af4d72997e8332310a4a778a612170bdeeb0f940f329b9d83edf9b6f963c4d9610fd64dba0c32762b7e136a05db06",
+          "sha256": "79727cca719a50c6e11fa4134f005a8c764024fb912252ffad0563bbe5aa5842",
+          "sha1": "f17410fc13c90612cc3dc2d59dd7c545dcda3277",
+          "md5": "1022388b5178e9e884d4e5a8cd52f97f"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "kfflang-5.5.0-sources.jar",
+          "url": "kfflang-5.5.0-sources.jar",
+          "size": 7440,
+          "sha512": "4b0236fec00c509164cc5b1ce6b0574ceaa13f95a37da879525a11e3ee3a8b50d70db6a291ff707f699c1c7781e87e1406b0abce8c5a8c11f0d4c01213d7951f",
+          "sha256": "8a15afe93752ffe0c42c4a2ba48982e6a450cb50efc759ada18c720da7abfea1",
+          "sha1": "8c7666a8462ab05c45222b36761e9a261ef2109d",
+          "md5": "f2f0d0a9e475ac69a03d33c070817885"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "thedarkcolour",
+    "module": "kfflib",
+    "version": "5.5.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.7"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 21,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "kfflib-5.5.0.jar",
+          "url": "kfflib-5.5.0.jar",
+          "size": 41497,
+          "sha512": "9ddd3aa024aa6117777d47d1dbfa8d5c1af8a754ece259563323e2de6021094145bdb12aac550076bf7e70f41b0fe97d20b9f83a55e49a954b7ba0acc16d2900",
+          "sha256": "d4d3b3d3b5ceeeb0b9a16f17f62ea276f52d945318c14a16ad1f8f2cccc3f879",
+          "sha1": "169bce391f37846fabfd4a871e10355b59dfd96a",
+          "md5": "d5deda000965faddda03ed5762dc7961"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 21,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "kfflib-5.5.0.jar",
+          "url": "kfflib-5.5.0.jar",
+          "size": 41497,
+          "sha512": "9ddd3aa024aa6117777d47d1dbfa8d5c1af8a754ece259563323e2de6021094145bdb12aac550076bf7e70f41b0fe97d20b9f83a55e49a954b7ba0acc16d2900",
+          "sha256": "d4d3b3d3b5ceeeb0b9a16f17f62ea276f52d945318c14a16ad1f8f2cccc3f879",
+          "sha1": "169bce391f37846fabfd4a871e10355b59dfd96a",
+          "md5": "d5deda000965faddda03ed5762dc7961"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "kfflib-5.5.0-sources.jar",
+          "url": "kfflib-5.5.0-sources.jar",
+          "size": 12417,
+          "sha512": "e04d54c7979dcc83ee9c1c2cd83577c248e3bca048c410e916aa64bfdfd90a3b7b2f2c5a76fb52f3721c8ef038f28d9ebbd8cb9c1bcb87742523a8da082d53b6",
+          "sha256": "e4ea9fb66307c9ffe2b15156c6f4bb79de43a1c04427ff72fb0bd9c0499147ba",
+          "sha1": "040ed6f5acaeddfb52bd2dd7c52e81f960228b83",
+          "md5": "fcff5f9d090d1475a86b35ec0c29fb84"
+        }
+      ]
+    }
+  ]
+}
