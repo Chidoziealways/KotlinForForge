@@ -1,0 +1,84 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "thedarkcolour",
+    "module": "kfflib-neoforge",
+    "version": "5.6.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.7"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 21,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "kfflib-neoforge-5.6.0.jar",
+          "url": "kfflib-neoforge-5.6.0.jar",
+          "size": 38825,
+          "sha512": "6b0f14852a60ebb564bf020610b6c238c2ceeaf2fd21055541abb1955d317f2304d5eacb15517fac536e3d898cb0fc5b2c0d0bd67df6072887155bda9073481a",
+          "sha256": "d9a0504e9153c6cd0de522e908ecde95f11927d0124cac1b375cb8cb93df60b8",
+          "sha1": "36f1176d88b2348202c9e71942da56fb3605b54d",
+          "md5": "8892e68e5c7cd12c463a902395e56f5a"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 21,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "kfflib-neoforge-5.6.0.jar",
+          "url": "kfflib-neoforge-5.6.0.jar",
+          "size": 38825,
+          "sha512": "6b0f14852a60ebb564bf020610b6c238c2ceeaf2fd21055541abb1955d317f2304d5eacb15517fac536e3d898cb0fc5b2c0d0bd67df6072887155bda9073481a",
+          "sha256": "d9a0504e9153c6cd0de522e908ecde95f11927d0124cac1b375cb8cb93df60b8",
+          "sha1": "36f1176d88b2348202c9e71942da56fb3605b54d",
+          "md5": "8892e68e5c7cd12c463a902395e56f5a"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "kfflib-neoforge-5.6.0-sources.jar",
+          "url": "kfflib-neoforge-5.6.0-sources.jar",
+          "size": 11909,
+          "sha512": "a60b9d58c89404ef17ddec8b429ff4d6152a52684227ba8cc6c4d55ac6c66b631457552e476bac79a35dc6dbf10926a97936de9cd299277c997fd4d3f6e26f83",
+          "sha256": "50c513b38d1bff27878093c415b614eea058dcc2ba52e28fb8ce4c1698446ea8",
+          "sha1": "01a7982c7e79004779ec0f206b3e14a70fd2ff5c",
+          "md5": "c636df1f0968c56a038e82884e4fbc6d"
+        }
+      ]
+    }
+  ]
+}

@@ -8,7 +8,7 @@ update_maven_local:
 original_pwd = pwd()
 println("Fetching from upstream...")
 # Sync maven-metadata-local.xml with upstream
-run(`git fetch`)
+run(`git pull`)
 println("Syncing local Maven metadata...")
 for (root, dir, files) in walkdir("thedarkcolour")
   for file_name in files
