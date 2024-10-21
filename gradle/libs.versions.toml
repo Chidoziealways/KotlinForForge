@@ -1,7 +1,7 @@
 [versions]
-kotlin = "2.0.10"
-coroutines = "1.8.1"
-serialization = "1.7.1"
+kotlin = "2.0.21"
+coroutines = "1.9.0"
+serialization = "1.7.3"
 
 # Neo
 neogradle = "7.0.142"

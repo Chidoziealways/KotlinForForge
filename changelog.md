@@ -1,3 +1,6 @@
+## Kotlin for Forge 5.6.0
+- Updated to Kotlin 2.0.21, coroutines 1.9.0, serialization 1.7.3
+
 ## Kotlin for Forge 5.5.0
 - Updated to Kotlin 2.0.10
 - Fix NeoForge crash due to breaking change in FancyModLoader

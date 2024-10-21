@@ -24,7 +24,7 @@ To implement in an existing project, merge the following into your build script:
 ```groovy
 plugins {    
     // Adds the Kotlin Gradle plugin
-    id 'org.jetbrains.kotlin.jvm' version '2.0.0'
+    id 'org.jetbrains.kotlin.jvm' version '2.0.21'
     // OPTIONAL Kotlin Serialization plugin
     //id 'org.jetbrains.kotlin.plugin.serialization' version '2.0.0'
 }
@@ -40,11 +40,11 @@ repositories {
 dependencies {
     // Adds KFF as dependency and Kotlin libs (use the variant matching your mod loader)
     // FORGE (1.21+ ONLY)
-    implementation 'thedarkcolour:kfflang:5.3.0'
-    implementation 'thedarkcolour:kfflib:5.3.0'
-    implementation 'thedarkcolour:kffmod:5.3.0'
+    implementation 'thedarkcolour:kfflang:5.6.0'
+    implementation 'thedarkcolour:kfflib:5.6.0'
+    implementation 'thedarkcolour:kffmod:5.6.0'
     // NEOFORGE
-    implementation 'thedarkcolour:kotlinforforge-neoforge:5.3.0'
+    implementation 'thedarkcolour:kotlinforforge-neoforge:5.6.0'
 }
 // ONLY ON REGULAR FORGE
 sourceSets.each {
@@ -62,7 +62,7 @@ sourceSets.each {
 ```kotlin
 plugins {
     // Adds the Kotlin Gradle plugin
-    kotlin("jvm") version "2.0.0"
+    kotlin("jvm") version "2.0.21"
     // OPTIONAL Kotlin Serialization plugin
     //kotlin("plugin.serialization") version "2.0.0"
 }
@@ -78,11 +78,11 @@ repositories {
 dependencies {
     // Adds KFF as dependency and Kotlin libs (use the variant matching your mod loader)
     // FORGE (1.21+ ONLY)
-    implementation("thedarkcolour:kfflang:5.3.0")
-    implementation("thedarkcolour:kfflib:5.3.0")
-    implementation("thedarkcolour:kffmod:5.3.0")
+    implementation("thedarkcolour:kfflang:5.6.0")
+    implementation("thedarkcolour:kfflib:5.6.0")
+    implementation("thedarkcolour:kffmod:5.6.0")
     // NEOFORGE
-    implementation("thedarkcolour:kotlinforforge-neoforge:5.3.0")
+    implementation("thedarkcolour:kotlinforforge-neoforge:5.6.0")
 }
 // ONLY ON REGULAR FORGE
 sourceSets.configureEach {
@@ -98,7 +98,7 @@ Then, change the following to your neoforge.mods.toml file:
 ```toml
 modLoader="kotlinforforge"
 # Change this if you require a certain version of KotlinForForge
-loaderVersion="[5.3,)"
+loaderVersion="[5.6,)"
 ```
 
 Use `thedarkcolour.kotlinforforge.forge.MOD_BUS` instead of        
