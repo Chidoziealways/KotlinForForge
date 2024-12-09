@@ -1,3 +1,6 @@
+## Kotlin for Forge 5.7.0
+- Updated to Kotlin 2.1.0
+
 ## Kotlin for Forge 5.6.0
 - Updated to Kotlin 2.0.21, coroutines 1.9.0, serialization 1.7.3
 
