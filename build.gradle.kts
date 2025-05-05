@@ -313,9 +313,9 @@ publishing {
 
                 // Generate Maven dependencies manually
                 val dependencies = arrayListOf("kfflang", "kfflib", "kffmod")
-                    .map { FakeMavenDependency("thedarkcolour", it + suffix, project.property("kff_version") as String, "compile") }
+                    .map { FakeMavenDependency("thedarkcolour", it + suffix, project.property("kff_version") as String) }
                     .plus(libs.bundles.kotlin.get()
-                        .map { FakeMavenDependency(it.group!!, it.name, it.version!!, "provided") }
+                        .map { FakeMavenDependency(it.group!!, it.name, it.version!!) }
                     )
 
                 pom {
@@ -334,13 +334,13 @@ publishing {
     }
 }
 
-data class FakeMavenDependency(private val groupId: String, private val artifactId: String, private val version: String, private val scope: String) : MavenDependency {
+data class FakeMavenDependency(private val groupId: String, private val artifactId: String, private val version: String) : MavenDependency {
     override fun getGroupId() = groupId
     override fun getArtifactId() = artifactId
     override fun getVersion() = version
     override fun getType() = null
     override fun getClassifier() = null
-    override fun getScope() = scope
+    override fun getScope() = "compile"
     override fun getExcludeRules() = emptySet<ExcludeRule>()
     override fun isOptional() = false
 }
