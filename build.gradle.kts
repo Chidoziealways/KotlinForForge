@@ -330,7 +330,7 @@ publishing {
     }
 
     repositories {
-        maven("file://${project.projectDir}/repo")
+        maven("file://${project.projectDir}/site")
     }
 }
 
