@@ -1,0 +1,33 @@
+name: Release for 5.x
+
+on:
+  push:
+    branches: [ '5.x' ]
+
+jobs:
+  release:
+    name: Publish release JAR for Kotlin for Forge
+    runs-on: ubuntu-latest
+    if: "startsWith(github.event.head_commit.message, '[Release]')"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'microsoft'
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Upload to CurseForge
+        run: ./gradlew curseforge
+        env:
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+
+      - name: Upload to Modrinth
+        run: ./gradlew modrinth
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}

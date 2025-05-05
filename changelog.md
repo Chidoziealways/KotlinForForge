@@ -1,3 +1,7 @@
+## Kotlin for Forge 5.8.0
+- Update to Kotlin 2.1.20, coroutines 1.10.2, serialization 1.8.1
+- Fixed accidental transitive dependency on FancyModLoader
+
 ## Kotlin for Forge 5.7.0
 - Updated to Kotlin 2.1.0
 
