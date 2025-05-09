@@ -7,6 +7,10 @@ Makes Kotlin Forge-friendly by doing the following:
 - Provides `AutoKotlinEventBusSubscriber` to allow usage of object declarations as @EventBusSubscriber targets.
 - Provides useful utility functions and constants
 
+To see which versions of the Kotlin libraries is bundled with a particular version of KFF, check the [DEPENDENCY CHART](https://docs.google.com/spreadsheets/d/1v8K90PBa5qPFrlHBA8PSqlBTYCcp078o5E2XQbt5BUs/edit?usp=sharing).
+
+Have questions or suggestions? Join the [DISCORD SERVER](https://discord.gg/tmVmZtx).
+
 [MIGRATION GUIDE](https://gist.github.com/thedarkcolour/5590f46b0d4d8ca692add2934d05e642)
 
 A 1.21 Forge example mod is provided here: [1.21 KotlinModdingSkeleton Forge repository](https://github.com/thedarkcolour/KotlinModdingSkeleton/tree/1.21-forge)
@@ -24,9 +28,9 @@ To implement in an existing project, merge the following into your build script:
 ```groovy
 plugins {    
     // Adds the Kotlin Gradle plugin
-    id 'org.jetbrains.kotlin.jvm' version '2.0.21'
+    id 'org.jetbrains.kotlin.jvm' version '2.1.20'
     // OPTIONAL Kotlin Serialization plugin
-    //id 'org.jetbrains.kotlin.plugin.serialization' version '2.0.0'
+    //id 'org.jetbrains.kotlin.plugin.serialization' version '2.1.20'
 }
 
 repositories {
@@ -40,11 +44,9 @@ repositories {
 dependencies {
     // Adds KFF as dependency and Kotlin libs (use the variant matching your mod loader)
     // FORGE (1.21+ ONLY)
-    implementation 'thedarkcolour:kfflang:5.6.0'
-    implementation 'thedarkcolour:kfflib:5.6.0'
-    implementation 'thedarkcolour:kffmod:5.6.0'
+	implementation 'thedarkcolour:kotlinforforge:5.8.0'
     // NEOFORGE
-    implementation 'thedarkcolour:kotlinforforge-neoforge:5.6.0'
+    implementation 'thedarkcolour:kotlinforforge-neoforge:5.8.0'
 }
 // ONLY ON REGULAR FORGE
 sourceSets.each {
@@ -62,9 +64,9 @@ sourceSets.each {
 ```kotlin
 plugins {
     // Adds the Kotlin Gradle plugin
-    kotlin("jvm") version "2.0.21"
+    kotlin("jvm") version "2.1.20"
     // OPTIONAL Kotlin Serialization plugin
-    //kotlin("plugin.serialization") version "2.0.0"
+    //kotlin("plugin.serialization") version "2.1.20"
 }
 
 repositories {
@@ -78,11 +80,9 @@ repositories {
 dependencies {
     // Adds KFF as dependency and Kotlin libs (use the variant matching your mod loader)
     // FORGE (1.21+ ONLY)
-    implementation("thedarkcolour:kfflang:5.6.0")
-    implementation("thedarkcolour:kfflib:5.6.0")
-    implementation("thedarkcolour:kffmod:5.6.0")
+    implementation("thedarkcolour:kotlinforforge-neoforge:5.8.0")
     // NEOFORGE
-    implementation("thedarkcolour:kotlinforforge-neoforge:5.6.0")
+    implementation("thedarkcolour:kotlinforforge-neoforge:5.8.0")
 }
 // ONLY ON REGULAR FORGE
 sourceSets.configureEach {
@@ -98,7 +98,7 @@ Then, change the following to your neoforge.mods.toml file:
 ```toml
 modLoader="kotlinforforge"
 # Change this if you require a certain version of KotlinForForge
-loaderVersion="[5.6,)"
+loaderVersion="[5.8,)"
 ```
 
 Use `thedarkcolour.kotlinforforge.forge.MOD_BUS` instead of        
