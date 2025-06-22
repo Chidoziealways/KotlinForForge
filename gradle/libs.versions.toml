@@ -23,8 +23,7 @@ night-config = "3.7.1"
 
 # Gradle
 moddev = "2.0.71"
-minotaur = "2.8.7"
-cursegradle = "1.4.0"
+mod-publish-plugin = "0.8.4"
 ideaext = "1.1.9"
 shadow = "8.3.6"
 
@@ -65,5 +64,4 @@ shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 moddev = { id = "net.neoforged.moddev", version.ref = "moddev" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 
-minotaur = { id = "com.modrinth.minotaur", version.ref = "minotaur" }
-cursegradle = { id = "com.matthewprenger.cursegradle", version.ref = "cursegradle" }
+mod-publish-plugin = { id = "me.modmuss50.mod-publish-plugin", version.ref = "mod-publish-plugin"}

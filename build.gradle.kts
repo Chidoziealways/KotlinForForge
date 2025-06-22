@@ -1,5 +1,4 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import com.matthewprenger.cursegradle.CurseArtifact
 import net.neoforged.moddevgradle.tasks.JarJar
 import org.gradle.api.publish.maven.internal.dependencies.MavenDependency
 import org.gradle.api.publish.maven.internal.dependencies.MavenPomDependencies
@@ -8,7 +7,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.gradle.api.publish.maven.internal.publication.MavenPomInternal
 import org.jetbrains.gradle.ext.settings
 import org.jetbrains.gradle.ext.taskTriggers
-import com.matthewprenger.cursegradle.CurseProject
 import org.gradle.kotlin.dsl.support.normaliseLineSeparators
 
 plugins {
@@ -21,8 +19,7 @@ plugins {
     alias(libs.plugins.moddev).apply(false)
     alias(libs.plugins.kotlin)
 
-    alias(libs.plugins.minotaur)
-    alias(libs.plugins.cursegradle)
+    alias(libs.plugins.mod.publish.plugin)
 }
 
 //
@@ -350,42 +347,25 @@ data class FakeMavenDependency(private val groupId: String, private val artifact
 //
 val supportedMcVersions = listOf("1.20.6", "1.21", "1.21.1", "1.21.2", "1.21.3", "1.21.4", "1.21.5")
 
-val curseForgeToken: String? = System.getenv("CURSEFORGE_TOKEN")
-if (!curseForgeToken.isNullOrBlank()) {
-    curseforge {
-        apiKey = curseForgeToken
+publishMods {
+    file = tasks.jar.get().archiveFile
 
-        project(closureOf<CurseProject> {
-            id = "351264"
-            changelogType = "markdown"
-            changelog = getChangelogText()
-            releaseType = "release"
-
-            gameVersionStrings.add("Forge")
-            gameVersionStrings.add("NeoForge")
-            gameVersionStrings.add("Java 21")
-            gameVersionStrings.addAll(supportedMcVersions)
-
-            mainArtifact(
-                tasks.jar.get().archiveFile,
-                closureOf<CurseArtifact> {
-                    displayName = "Kotlin for Forge ${project.version}"
-                }
-            )
-        })
-    }
-}
-
-modrinth {
-    projectId.set("ordsPcFz")
-    versionName.set("Kotlin for Forge ${project.version}")
-    versionNumber.set("${project.version}")
-    versionType.set("release")
-    gameVersions.addAll(supportedMcVersions)
-    loaders.add("forge")
-    loaders.add("neoforge")
     changelog = getChangelogText()
-    uploadFile.set(tasks.jar)
+    type = STABLE
+    modLoaders.addAll("forge", "neoforge")
+
+    curseforge {
+        projectId = "351264"
+        projectSlug = "kotlin-for-forge"
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+        minecraftVersions.addAll(supportedMcVersions)
+        minecraftVersions.add("Java 21")
+    }
+    modrinth {
+        projectId = "ordsPcFz"
+        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+        minecraftVersions.addAll(supportedMcVersions)
+    }
 }
 
 fun getChangelogText(): String {

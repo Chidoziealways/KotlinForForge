@@ -36,11 +36,11 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Upload to CurseForge
-        run: ./gradlew curseforge
+        run: ./gradlew publishCurseforge
         env:
           CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
 
       - name: Upload to Modrinth
-        run: ./gradlew modrinth
+        run: ./gradlew publishModrinth
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
