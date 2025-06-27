@@ -1,14 +1,18 @@
 package thedarkcolour.kotlinforforge.neoforge
 
-import net.neoforged.fml.Bindings
+import net.neoforged.bus.api.SubscribeEvent
 import net.neoforged.fml.Logging
 import net.neoforged.fml.common.EventBusSubscriber
 import net.neoforged.fml.common.Mod
 import net.neoforged.fml.javafmlmod.AutomaticEventSubscriber
 import net.neoforged.fml.loading.FMLEnvironment
 import net.neoforged.fml.loading.modscan.ModAnnotation
+import net.neoforged.neoforge.common.NeoForge
 import net.neoforged.neoforgespi.language.ModFileScanData
 import org.objectweb.asm.Type
+import kotlin.reflect.KFunction
+import kotlin.reflect.full.declaredMemberFunctions
+import kotlin.reflect.full.memberFunctions
 
 /**
  * Automatically registers `object` classes to
@@ -19,7 +23,7 @@ import org.objectweb.asm.Type
  *
  * Example:
  * ```
- * @file:Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+ * @file:Mod.EventBusSubscriber
  *
  * package example
  *
@@ -59,11 +63,13 @@ public object AutoKotlinEventBusSubscriber {
             annotationData.clazz.className to annotationData.annotationData.get("value")
         }
 
+        // we only need to worry about cases where NeoForge can't automatically register (object and file)
         for (annotationData in ebsTargets) {
             val sides = AutomaticEventSubscriber.getSides(annotationData.annotationData.get("value"))
-            val modid = annotationData.annotationData.getOrDefault("modid", modids.getOrDefault(annotationData.clazz.className, mod.modId))
+            val className = annotationData.clazz.className
+            val modid = annotationData.annotationData.getOrDefault("modid", modids.getOrDefault(className, mod.modId))
             val busTargetHolder = annotationData.annotationData.getOrDefault("bus", ModAnnotation.EnumHolder(null, "GAME")) as ModAnnotation.EnumHolder
-            val busTarget = EventBusSubscriber.Bus.valueOf(busTargetHolder.value)
+            val busTarget = busTargetHolder.value
 
             if (mod.modId == modid && FMLEnvironment.dist in sides) {
                 val kClass = Class.forName(annotationData.clazz.className, true, layer.classLoader).kotlin
@@ -75,30 +81,38 @@ public object AutoKotlinEventBusSubscriber {
                 } catch (unsupported: UnsupportedOperationException) {
                     if (unsupported.message?.contains("file facades") == false) {
                         throw unsupported
-                    } else {
-                        LOGGER.debug(Logging.LOADING, "Auto-subscribing kotlin file {} to {}", annotationData.annotationType.className, busTarget)
-                        registerTo(kClass.java, busTarget, mod)
-                        continue
                     }
+                    ktObject = null
                 }
 
                 if (ktObject != null) {
                     try {
                         LOGGER.debug(Logging.LOADING, "Auto-subscribing kotlin object {} to {}", annotationData.annotationType.className, busTarget)
+
+                        val gameListeners = arrayListOf<KFunction<*>>()
+                        val modListeners = arrayListOf<KFunction<*>>()
+
+                        for (function in kClass.declaredMemberFunctions) {
+                            if (function.annotations.contains(@SubscribeEvent))
+                        }
+
                         registerTo(ktObject, busTarget, mod)
                     } catch (e: Throwable) {
                         LOGGER.fatal(Logging.LOADING, "Failed to load mod class ${annotationData.annotationType} for @EventBusSubscriber annotation", e)
                         throw RuntimeException(e)
                     }
+                } else {
+                    LOGGER.debug(Logging.LOADING, "Auto-subscribing kotlin file {} to {}", annotationData.annotationType.className, busTarget)
+                    registerTo(kClass.java, busTarget, mod)
                 }
             }
         }
     }
 
-    private fun registerTo(any: Any, target: EventBusSubscriber.Bus, mod: KotlinModContainer) {
-        if (target == EventBusSubscriber.Bus.GAME) {
-            Bindings.getGameBus().register(any)
-        } else {
+    private fun registerTo(any: Any, target: String, mod: KotlinModContainer) {
+        if (target == "GAME") {
+            NeoForge.EVENT_BUS.register(any)
+        } else if (target == "MOD") {
             mod.eventBus.register(any)
         }
     }
