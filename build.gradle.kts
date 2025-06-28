@@ -328,6 +328,7 @@ publishing {
 
     repositories {
         maven("file://${project.projectDir}/site")
+        mavenLocal()
     }
 }
 
