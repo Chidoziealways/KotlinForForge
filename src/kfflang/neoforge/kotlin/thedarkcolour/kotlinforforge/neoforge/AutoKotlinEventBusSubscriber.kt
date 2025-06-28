@@ -1,18 +1,21 @@
 package thedarkcolour.kotlinforforge.neoforge
 
+import net.neoforged.bus.SubscribeEventListener
+import net.neoforged.bus.api.Event
+import net.neoforged.bus.api.IEventBus
 import net.neoforged.bus.api.SubscribeEvent
 import net.neoforged.fml.Logging
 import net.neoforged.fml.common.EventBusSubscriber
 import net.neoforged.fml.common.Mod
+import net.neoforged.fml.event.IModBusEvent
 import net.neoforged.fml.javafmlmod.AutomaticEventSubscriber
 import net.neoforged.fml.loading.FMLEnvironment
-import net.neoforged.fml.loading.modscan.ModAnnotation
 import net.neoforged.neoforge.common.NeoForge
 import net.neoforged.neoforgespi.language.ModFileScanData
 import org.objectweb.asm.Type
-import kotlin.reflect.KFunction
-import kotlin.reflect.full.declaredMemberFunctions
-import kotlin.reflect.full.memberFunctions
+import java.lang.reflect.Method
+import kotlin.reflect.full.*
+import kotlin.reflect.jvm.javaMethod
 
 /**
  * Automatically registers `object` classes to
@@ -38,6 +41,9 @@ public object AutoKotlinEventBusSubscriber {
     private val EVENT_BUS_SUBSCRIBER: Type = Type.getType(EventBusSubscriber::class.java)
     private val MOD: Type = Type.getType(Mod::class.java)
 
+    private const val MOD_BUS_TARGET = "MOD"
+    private const val GAME_BUS_TARGET = "GAME"
+
     /**
      * Allows the [EventBusSubscriber] annotation
      * to target member functions of an `object` class.
@@ -57,7 +63,7 @@ public object AutoKotlinEventBusSubscriber {
         val ebsTargets = scanData.annotations.filter { annotationData ->
             EVENT_BUS_SUBSCRIBER == annotationData.annotationType
         }
-        val modids = scanData.annotations.filter { annotationData ->
+        val modIds = scanData.annotations.filter { annotationData ->
             MOD == annotationData.annotationType
         }.associate { annotationData ->
             annotationData.clazz.className to annotationData.annotationData.get("value")
@@ -67,9 +73,7 @@ public object AutoKotlinEventBusSubscriber {
         for (annotationData in ebsTargets) {
             val sides = AutomaticEventSubscriber.getSides(annotationData.annotationData.get("value"))
             val className = annotationData.clazz.className
-            val modid = annotationData.annotationData.getOrDefault("modid", modids.getOrDefault(className, mod.modId))
-            val busTargetHolder = annotationData.annotationData.getOrDefault("bus", ModAnnotation.EnumHolder(null, "GAME")) as ModAnnotation.EnumHolder
-            val busTarget = busTargetHolder.value
+            val modid = annotationData.annotationData.getOrDefault("modid", modIds.getOrDefault(className, mod.modId))
 
             if (mod.modId == modid && FMLEnvironment.dist in sides) {
                 val kClass = Class.forName(annotationData.clazz.className, true, layer.classLoader).kotlin
@@ -87,33 +91,67 @@ public object AutoKotlinEventBusSubscriber {
 
                 if (ktObject != null) {
                     try {
-                        LOGGER.debug(Logging.LOADING, "Auto-subscribing kotlin object {} to {}", annotationData.annotationType.className, busTarget)
-
-                        val gameListeners = arrayListOf<KFunction<*>>()
-                        val modListeners = arrayListOf<KFunction<*>>()
+                        val gameListeners = arrayListOf<Method>()
+                        val modListeners = arrayListOf<Method>()
 
                         for (function in kClass.declaredMemberFunctions) {
-                            if (function.annotations.contains(@SubscribeEvent))
+                            if (!function.hasAnnotation<SubscribeEvent>()) continue
+
+                            val method = function.javaMethod!!
+                            val paramTypes = method.parameterTypes
+                            if (method.parameterCount != 1 || !Event::class.java.isAssignableFrom(paramTypes[0])) {
+                                throw IllegalArgumentException("Kotlin function $method annotated with @SubscribeEvent must have only one parameter that is an Event subtype")
+                            }
+
+                            val eventType = paramTypes[0].javaClass
+                            if (IModBusEvent::class.java.isAssignableFrom(eventType)) {
+                                modListeners.add(method)
+                            } else {
+                                gameListeners.add(method)
+                            }
                         }
 
-                        registerTo(ktObject, busTarget, mod)
+                        // Preserve old behavior when there's no mix, allowing the entire object to be unregistered like before
+                        if (modListeners.isEmpty()) {
+                            LOGGER.debug(Logging.LOADING, "Auto-subscribing kotlin object {} to $GAME_BUS_TARGET", annotationData.annotationType.className)
+                            NeoForge.EVENT_BUS.register(ktObject)
+                        } else {
+                            if (gameListeners.isEmpty()) {
+                                LOGGER.debug(Logging.LOADING, "Auto-subscribing kotlin object {} to $MOD_BUS_TARGET", annotationData.annotationType.className)
+                                mod.eventBus.register(ktObject)
+                            } else {
+                                // New behavior that automatically detects which bus to register to
+                                for (method in modListeners) {
+                                    LOGGER.debug(Logging.LOADING, "Subscribing kotlin function {} to the $MOD_BUS_TARGET event bus", method)
+                                    mod.eventBus.registerMemberMethod(ktObject, method)
+                                }
+                                for (method in gameListeners) {
+                                    LOGGER.debug(Logging.LOADING, "Subscribing kotlin function {} to the $GAME_BUS_TARGET event bus", method)
+                                    NeoForge.EVENT_BUS.registerMemberMethod(ktObject, method)
+                                }
+                            }
+                        }
                     } catch (e: Throwable) {
                         LOGGER.fatal(Logging.LOADING, "Failed to load mod class ${annotationData.annotationType} for @EventBusSubscriber annotation", e)
                         throw RuntimeException(e)
                     }
                 } else {
-                    LOGGER.debug(Logging.LOADING, "Auto-subscribing kotlin file {} to {}", annotationData.annotationType.className, busTarget)
-                    registerTo(kClass.java, busTarget, mod)
+                    LOGGER.debug(Logging.LOADING, "Passing kotlin file {} to NeoForge's AutomaticEventSubscriber", annotationData.annotationType.className)
+                    // Make NeoForge do it
+                    val fakeData = ModFileScanData()
+                    fakeData.annotations.add(annotationData)
+                    AutomaticEventSubscriber.inject(mod, fakeData, layer)
                 }
             }
         }
     }
 
-    private fun registerTo(any: Any, target: String, mod: KotlinModContainer) {
-        if (target == "GAME") {
-            NeoForge.EVENT_BUS.register(any)
-        } else if (target == "MOD") {
-            mod.eventBus.register(any)
-        }
+    private fun IEventBus.registerMemberMethod(obj: Any, method: Method) {
+        val subscribeEvent = method.getAnnotation(SubscribeEvent::class.java)
+        // let's hope this doesn't break
+        @Suppress("UnstableApiUsage")
+        val eventListener = SubscribeEventListener(obj, method).withoutCheck
+
+        addListener(subscribeEvent.priority, subscribeEvent.receiveCanceled, eventListener::invoke)
     }
 }
