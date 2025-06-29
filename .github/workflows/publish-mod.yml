@@ -20,7 +20,7 @@ jobs:
   curseforge:
     name: Publish release JAR on CurseForge
     runs-on: ubuntu-latest
-    if: ${{ contains(github.event.head_commit.message, '[Release]') || inputs.platform != 'modrinth' }}
+    if: ${{ contains(github.event.head_commit.message, '[Release]') || (inputs.platform == 'both' || inputs.platform == 'curseforge') }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -44,7 +44,7 @@ jobs:
   modrinth:
     name: Publish release JAR on Modrinth
     runs-on: ubuntu-latest
-    if: ${{ contains(github.event.head_commit.message, '[Release]') || inputs.platform != 'curseforge' }}
+    if: ${{ contains(github.event.head_commit.message, '[Release]') || (inputs.platform == 'both' || inputs.platform == 'modrinth') }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
