@@ -351,7 +351,6 @@ publishMods {
         projectSlug = "kotlin-for-forge"
         accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
         minecraftVersions.addAll(supportedMcVersions)
-        minecraftVersions.add("Java 21")
     }
     modrinth {
         projectId = "ordsPcFz"
