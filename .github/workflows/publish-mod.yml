@@ -4,12 +4,23 @@ on:
   push:
     branches: [ '5.x' ]
   workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Which platform should the mod be published to?'
+        required: true
+        default: 'both'
+        type: choice
+        options:
+          - both
+          - curseforge
+          - modrinth
+
 
 jobs:
-  release:
-    name: Publish release JAR for Kotlin for Forge
+  curseforge:
+    name: Publish release JAR on CurseForge
     runs-on: ubuntu-latest
-    if: "contains(github.event.head_commit.message, '[Release]') || github.event_name == 'workflow_dispatch'"
+    if: ${{ contains(github.event.head_commit.message, '[Release]') || inputs.platform != 'modrinth' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -23,15 +34,6 @@ jobs:
           distribution: 'microsoft'
           java-version: '21'
 
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
@@ -39,6 +41,25 @@ jobs:
         run: ./gradlew publishCurseforge
         env:
           CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+  modrinth:
+    name: Publish release JAR on Modrinth
+    runs-on: ubuntu-latest
+    if: ${{ contains(github.event.head_commit.message, '[Release]') || inputs.platform != 'curseforge' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'microsoft'
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Upload to Modrinth
         run: ./gradlew publishModrinth
