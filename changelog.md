@@ -1,3 +1,9 @@
+## Kotlin for Forge 5.9.0
+- Updated to Kotlin 2.1.21
+- Fixed 1.21.1 NeoForge 21.1.183 crash with new FancyModLoader about removed Bindings class (#124)
+- Fixed 1.21.6 NeoForge crash with new FancyModLoader about removed EventBusSubscriber$Bus class (#123)
+- Fix missing source JARs from Maven repo
+
 ## Kotlin for Forge 5.8.0
 - Update to Kotlin 2.1.20, coroutines 1.10.2, serialization 1.8.1
 - Fixed accidental transitive dependency on FancyModLoader
