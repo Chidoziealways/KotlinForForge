@@ -10,7 +10,7 @@ import net.neoforged.fml.common.Mod
 import net.neoforged.fml.event.IModBusEvent
 import net.neoforged.fml.javafmlmod.AutomaticEventSubscriber
 import net.neoforged.fml.loading.FMLEnvironment
-import net.neoforged.neoforge.common.NeoForge
+import net.neoforged.fml.loading.FMLLoader
 import net.neoforged.neoforgespi.language.ModFileScanData
 import org.objectweb.asm.Type
 import java.lang.reflect.Method
@@ -43,6 +43,23 @@ public object AutoKotlinEventBusSubscriber {
 
     private const val MOD_BUS_TARGET = "MOD"
     private const val GAME_BUS_TARGET = "GAME"
+
+    private val gameBus by lazy {
+        try {
+            getOldGameBus()
+        } catch (t: Throwable) {
+            getNewGameBus()
+        }
+    }
+
+    private fun getOldGameBus(): IEventBus {
+        val bindings = Class.forName("net.neoforged.fml.Bindings")
+        return bindings.getDeclaredMethod("getGameBus").invoke(null) as IEventBus
+    }
+
+    private fun getNewGameBus(): IEventBus {
+        return FMLLoader.getBindings().gameBus
+    }
 
     /**
      * Allows the [EventBusSubscriber] annotation
@@ -103,7 +120,7 @@ public object AutoKotlinEventBusSubscriber {
                                 throw IllegalArgumentException("Kotlin function $method annotated with @SubscribeEvent must have only one parameter that is an Event subtype")
                             }
 
-                            val eventType = paramTypes[0].javaClass
+                            val eventType = paramTypes[0]
                             if (IModBusEvent::class.java.isAssignableFrom(eventType)) {
                                 modListeners.add(method)
                             } else {
@@ -113,11 +130,11 @@ public object AutoKotlinEventBusSubscriber {
 
                         // Preserve old behavior when there's no mix, allowing the entire object to be unregistered like before
                         if (modListeners.isEmpty()) {
-                            LOGGER.debug(Logging.LOADING, "Auto-subscribing kotlin object {} to $GAME_BUS_TARGET", annotationData.annotationType.className)
-                            NeoForge.EVENT_BUS.register(ktObject)
+                            LOGGER.debug(Logging.LOADING, "Auto-subscribing kotlin object {} to $GAME_BUS_TARGET", ktObject)
+                            gameBus.register(ktObject)
                         } else {
                             if (gameListeners.isEmpty()) {
-                                LOGGER.debug(Logging.LOADING, "Auto-subscribing kotlin object {} to $MOD_BUS_TARGET", annotationData.annotationType.className)
+                                LOGGER.debug(Logging.LOADING, "Auto-subscribing kotlin object {} to $MOD_BUS_TARGET", ktObject)
                                 mod.eventBus.register(ktObject)
                             } else {
                                 // New behavior that automatically detects which bus to register to
@@ -127,7 +144,7 @@ public object AutoKotlinEventBusSubscriber {
                                 }
                                 for (method in gameListeners) {
                                     LOGGER.debug(Logging.LOADING, "Subscribing kotlin function {} to the $GAME_BUS_TARGET event bus", method)
-                                    NeoForge.EVENT_BUS.registerMemberMethod(ktObject, method)
+                                    gameBus.registerMemberMethod(ktObject, method)
                                 }
                             }
                         }
@@ -152,6 +169,7 @@ public object AutoKotlinEventBusSubscriber {
         @Suppress("UnstableApiUsage")
         val eventListener = SubscribeEventListener(obj, method).withoutCheck
 
-        addListener(subscribeEvent.priority, subscribeEvent.receiveCanceled, eventListener::invoke)
+        @Suppress("UNCHECKED_CAST")
+        addListener(subscribeEvent.priority, subscribeEvent.receiveCanceled, method.parameterTypes[0] as Class<Event>, eventListener::invoke)
     }
 }
