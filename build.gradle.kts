@@ -161,13 +161,32 @@ dependencies {
 // ARTIFACTS
 //
 
+inline fun <reified J : Jar> registerArtifact(taskName: String, baseName: String, vararg sourceSetNames: String, crossinline configure: J.() -> Unit) {
+    tasks.register<J>(taskName) {
+        archiveBaseName.set(baseName)
+        group = "kff"
+
+        for (sourceSetName in sourceSetNames) {
+            from(sourceSets[sourceSetName].output)
+        }
+
+        configure()
+    }
+    tasks.register<J>(taskName + "Sources") {
+        archiveBaseName.set(baseName)
+        archiveClassifier.set("sources")
+        group = "kff"
+
+        for (sourceSetName in sourceSetNames) {
+            from(sourceSets[sourceSetName].allSource)
+        }
+
+        configure()
+    }
+}
+
 // kfflang-neoforge
-tasks.register<Jar>("langNeoForgeJar") {
-    archiveBaseName.set("kfflang-neoforge")
-    group = "kff"
-
-    from(sourceSets["langNeoForge"].output)
-
+registerArtifact<Jar>("langNeoForgeJar", "kfflang-neoforge", "langNeoForge") {
     manifest {
         attributes(
             mapOf(
@@ -179,12 +198,7 @@ tasks.register<Jar>("langNeoForgeJar") {
 }
 
 // kfflang-forge
-tasks.register<Jar>("langForgeJar") {
-    archiveBaseName.set("kfflang-forge")
-    group = "kff"
-
-    from(sourceSets["langForge"].output)
-
+registerArtifact<Jar>("langForgeJar", "kfflang-forge", "langForge") {
     manifest {
         attributes(
             mapOf(
@@ -202,13 +216,7 @@ tasks.register<Jar>("langForgeJar") {
 }
 
 // kfflib-neoforge
-tasks.register<ShadowJar>("libNeoForgeJar") {
-    archiveBaseName.set("kfflib-neoforge")
-    group = "kff"
-
-    from(sourceSets["libCommon"].output)
-    from(sourceSets["libNeoForge"].output)
-
+registerArtifact<ShadowJar>("libNeoForgeJar", "kfflib-neoforge", "libCommon", "libNeoForge") {
     // Move common lib into correct package
     relocate("thedarkcolour.kotlinforforge.forge", "thedarkcolour.kotlinforforge.neoforge.forge")
     relocate("thedarkcolour.kotlinforforge.kotlin", "thedarkcolour.kotlinforforge.neoforge.kotlin")
@@ -219,37 +227,19 @@ tasks.register<ShadowJar>("libNeoForgeJar") {
 }
 
 // kfflib-forge
-tasks.register<Jar>("libForgeJar") {
-    archiveBaseName.set("kfflib-forge")
-    group = "kff"
-
-    from(sourceSets["libForge"].output)
-    from(sourceSets["libCommon"].output)
-
+registerArtifact<Jar>("libForgeJar", "kfflib-forge", "libForge", "libCommon") {
     manifest {
         attributes(mapOf("FMLModType" to "GAMELIBRARY"))
     }
 }
 
 // kffmod-neoforge
-tasks.register<Jar>("modNeoForgeJar") {
-    archiveBaseName.set("kffmod-neoforge")
-    group = "kff"
-
-    from(sourceSets["modCommon"].output)
-    from(sourceSets["modNeoForge"].output)
-
+registerArtifact<Jar>("modNeoForgeJar", "kffmod-neoforge", "modCommon", "modNeoForge") {
     exclude("META-INF/mods.toml")
 }
 
 // kffmod-forge
-tasks.register<Jar>("modForgeJar") {
-    archiveBaseName.set("kffmod-forge")
-    group = "kff"
-
-    from(sourceSets["modCommon"].output)
-    from(sourceSets["modForge"].output)
-
+registerArtifact<Jar>("modForgeJar", "kffmod-forge", "modCommon", "modForge") {
     exclude("META-INF/neoforge.mods.toml")
 }
 
@@ -300,6 +290,7 @@ publishing {
             register<MavenPublication>(name.replace("-", "_")) {
                 artifactId = name
                 artifact(tasks.named<Jar>(jar))
+                artifact(tasks.named<Jar>(jar + "Sources"))
             }
         }
         listOf("", "-neoforge").forEach { suffix ->
