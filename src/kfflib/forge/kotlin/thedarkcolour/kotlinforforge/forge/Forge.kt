@@ -35,8 +35,8 @@ public inline val FORGE_BUS: IEventBus
  *   @see net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
  *   @see net.minecraftforge.registries.NewRegistryEvent
  */
-public inline val MOD_BUS: IEventBus
-    get() = KotlinModLoadingContext.get().getKEventBus()
+public inline val MOD_BUS: BusGroup
+    get() = KotlinModLoadingContext.get().getKBusGroup()
 
 /**
  * Used in place of [net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext]

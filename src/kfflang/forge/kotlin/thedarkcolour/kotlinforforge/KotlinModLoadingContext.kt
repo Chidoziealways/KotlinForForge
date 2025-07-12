@@ -8,14 +8,18 @@ import net.minecraftforge.fml.ModLoadingContext
  */
 public class KotlinModLoadingContext(private val container: KotlinModContainer) {
     /** Mods should access through [MOD_BUS] */
-    public fun getKEventBus(): IEventBus {
+    public fun getKBusGroup(): BusGroup {
         return container.eventBus
+    }
+
+    public fun getContainer(): KotlinModContainer {
+        return container
     }
 
     public companion object {
         /** Mods should access through [MOD_CONTEXT] */
         public fun get(): KotlinModLoadingContext {
-            return ModLoadingContext.get().extension()
+            return ModLoadingContext.get().extension() as KotlinModLoadingContext
         }
     }
 }

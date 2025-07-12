@@ -26,25 +26,25 @@ public class KotlinModContainer(
     gameLayer: ModuleLayer,
 ) : ModContainer(info) {
     private var modInstance: Any? = null
-    internal val eventBus: IEventBus
+    internal val busGroup: BusGroup
     private val modClass: Class<*>
+    val ctx = KotlinModLoadingContext(this)
+    private val implAddExportsOrOpens = Module::class.java.getDeclaredMethod(
+        "implAddExportsOrOpens", String::class.java, Module::class.java, Boolean::class.javaPrimitiveType, Boolean::class.javaPrimitiveType
+    ).apply {
+        isAccessible = true
+    }
 
     init {
         LOGGER.debug(Logging.LOADING, "Creating KotlinModContainer instance for $className")
-
         activityMap[ModLoadingStage.CONSTRUCT] = Runnable(::constructMod)
-
-        eventBus = NewEventBusMaker.make(::onEventFailed)
-        
-        configHandler = Optional.of(Consumer { event ->
-            eventBus.post(event.self())
-        })
-
-        val ctx = KotlinModLoadingContext(this)
+        eventBus = BusGroup.create("modBusFor ${info.getModId()}")
         contextExtension = Supplier {ctx}
-        
+
         try {
-            val layer = gameLayer.findModule(info.owningFile.moduleName()).orElseThrow()
+            val moduleName = info.getOwningFile().moduleName()
+            val layer = gameLayer.findModule(moduleName).orElseThrow()
+            openModules(gameLayer, layer, info.getOwningFile().getFile().secureJar())
             modClass = Class.forName(layer, className)
             LOGGER.trace(Logging.LOADING, "Loaded modclass {} with {}", modClass.name, modClass.classLoader)
         } catch (t: Throwable) {
@@ -53,7 +53,7 @@ public class KotlinModContainer(
         }
     }
 
-    private fun onEventFailed(iEventBus: IEventBus, event: Event, listeners: Array<IEventListener>, busId: Int, throwable: Throwable) {
+    private fun onEventFailed(iEventBus: BusGroup, event: Event, listeners: Array<IEventListener>, busId: Int, throwable: Throwable) {
         LOGGER.error(EventBusErrorMessage(event, busId, listeners, throwable))
     }
 
@@ -85,9 +85,14 @@ public class KotlinModContainer(
 
     override fun getMod(): Any? = modInstance
 
+    fun getModBusGroup(): BusGroup {
+        return eventBus
+    }
+
     public override fun <T> acceptEvent(e: T) where T : Event, T : IModBusEvent {
         try {
             LOGGER.trace("Firing event for modid $modId : $e")
+            EventBus<T> eventBus = IModBusEvent.getBus(busGroup, e.getClass())
             eventBus.post(e)
             LOGGER.trace("Fired event for modid $modId : $e")
         } catch (t: Throwable) {
@@ -95,4 +100,25 @@ public class KotlinModContainer(
             throw ModLoadingException(modInfo, modLoadingStage, "fml.modloading.errorduringevent", t)
         }
     }
+
+    private fun openModules(layer: ModuleLayer, self: Module, jar: SecureJar) {
+        val manifest = jar.moduleDataProvider.manifest.mainAttributes
+        addOpenOrExports(layer, self, true, manifest)
+        addOpenOrExports(layer, self, false, manifest)
+    }
+
+    private fun addOpenOrExports(layer: ModuleLayer, self: Module, open: Boolean, attrs: Attributes) {
+        val key = if (open) "Add-Opens" else "Add-Exports"
+        val entry = attrs.getValue(key) ?: return
+        entry.split(" ").forEach { pair ->
+            val pts = pair.trim().split("/")
+            if (pts.size == 2) {
+                val target = layer.findModule(pts[0]).orElse(null)
+                if (target != null && target.descriptor.packages().contains(pts[1])) {
+                    implAddExportsOrOpens.invoke(target, pts[1], self, open, true)
+                }
+            }
+        }
+    }
+
 }
