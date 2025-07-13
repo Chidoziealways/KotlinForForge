@@ -1,10 +1,8 @@
 package thedarkcolour.kotlinforforge
 
 import cpw.mods.jarhandling.SecureJar
-import net.minecraftforge.eventbus.EventBusErrorMessage
-import net.minecraftforge.eventbus.api.Event
-import net.minecraftforge.eventbus.api.IEventListener
 import net.minecraftforge.eventbus.api.bus.BusGroup
+import net.minecraftforge.eventbus.internal.Event
 import net.minecraftforge.fml.Logging
 import net.minecraftforge.fml.ModContainer
 import net.minecraftforge.fml.ModLoadingException
@@ -52,10 +50,6 @@ public class KotlinModContainer(
         }
     }
 
-    private fun onEventFailed(iEventBus: BusGroup, event: Event, listeners: Array<IEventListener>, busId: Int, throwable: Throwable) {
-        LOGGER.error(EventBusErrorMessage(event, busId, listeners, throwable))
-    }
-
     // Sets modInstance to a new instance of the mod class or the object instance
     private fun constructMod() {
         try {
@@ -88,7 +82,7 @@ public class KotlinModContainer(
         return busGroup
     }
 
-    public override fun <T> acceptEvent(e: T) where T : Event, T : IModBusEvent {
+    public fun <T> acceptEvent(e: T) where T : Event, T : IModBusEvent {
         try {
             LOGGER.trace("Firing event for modid $modId : $e")
             var eventBus = IModBusEvent.getBus(busGroup, e.javaClass)
