@@ -133,7 +133,7 @@ public object AutoKotlinEventBusSubscriber {
 
     private fun registerTo(any: Any, target: Mod.EventBusSubscriber.Bus, mod: KotlinModContainer) {
         if (target == Mod.EventBusSubscriber.Bus.FORGE) {
-            target.bus().get()?.register(MethodHandles.lookup(), any)
+            target.bus().get()!!.register(MethodHandles.lookup(), any)
         } else {
             mod.busGroup.register(MethodHandles.lookup(), any)
         }
