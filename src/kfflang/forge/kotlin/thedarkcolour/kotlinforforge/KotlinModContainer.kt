@@ -8,8 +8,10 @@ import net.minecraftforge.fml.ModContainer
 import net.minecraftforge.fml.ModLoadingException
 import net.minecraftforge.fml.ModLoadingStage
 import net.minecraftforge.fml.event.IModBusEvent
+import net.minecraftforge.fml.javafmlmod.FMLModContainer
 import net.minecraftforge.forgespi.language.IModInfo
 import net.minecraftforge.forgespi.language.ModFileScanData
+import java.lang.reflect.Method
 import java.util.function.Supplier
 import java.util.jar.Attributes
 
@@ -26,11 +28,7 @@ public class KotlinModContainer(
     internal var busGroup: BusGroup
     private val modClass: Class<*>
     val ctx = KotlinModLoadingContext(this)
-    private val implAddExportsOrOpens = Module::class.java.getDeclaredMethod(
-        "implAddExportsOrOpens", String::class.java, Module::class.java, Boolean::class.javaPrimitiveType, Boolean::class.javaPrimitiveType
-    ).apply {
-        isAccessible = true
-    }
+    private var implAddExportsOrOpens: Method? = null
 
     init {
         LOGGER.debug(Logging.LOADING, "Creating KotlinModContainer instance for $className")
@@ -108,10 +106,27 @@ public class KotlinModContainer(
             if (pts.size == 2) {
                 val target = layer.findModule(pts[0]).orElse(null)
                 if (target != null && target.descriptor.packages().contains(pts[1])) {
-                    implAddExportsOrOpens.invoke(target, pts[1], self, open, true)
+                    addOpenOrExports(target, pts[1], self, open)
                 }
             }
         }
+    }
+
+    private fun addOpenOrExports(target: Module, pkg: String, reader: Module, open: Boolean) {
+        if(implAddExportsOrOpens == null) {
+            implAddExportsOrOpens = Module::class.java.getDeclaredMethod("implAddExportsOrOpens", String::class.java, Module::class.java, java.lang.Boolean.TYPE, java.lang.Boolean.TYPE)
+            UnsafeHacks.setAccessible(implAddExportsOrOpens!!)
+        }
+
+        LOGGER.info(
+            LOADING,
+            "{} {}/{} to {}",
+            if (open) "Opening" else "Exporting",
+            target.getName(),
+            pkg,
+            reader.getName()
+        )
+        implAddExportsOrOpens?.invoke(target, pkg, reader, open, true)
     }
 
 }

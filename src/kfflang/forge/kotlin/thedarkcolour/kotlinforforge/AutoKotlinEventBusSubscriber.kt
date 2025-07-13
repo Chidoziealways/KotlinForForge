@@ -1,6 +1,7 @@
 package thedarkcolour.kotlinforforge
 
 import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.eventbus.api.listener.SubscribeEvent
 import net.minecraftforge.fml.Logging
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.loading.FMLEnvironment
@@ -36,6 +37,7 @@ import java.util.*
 public object AutoKotlinEventBusSubscriber {
     // EventBusSubscriber annotation
     private val EVENT_BUS_SUBSCRIBER: Type = Type.getType(Mod.EventBusSubscriber::class.java)
+    private val SUBSCRIBE_EVENT: Type = Type.getType(SubscribeEvent::class.java)
 
     // Legacy EnumHolder
     private val enumHolderGetValue: Method? = try {
@@ -62,9 +64,7 @@ public object AutoKotlinEventBusSubscriber {
     public fun inject(mod: KotlinModContainer, scanData: ModFileScanData, classLoader: ClassLoader) {
         LOGGER.debug(Logging.LOADING, "Attempting to inject @EventBusSubscriber kotlin objects in to the event bus for ${mod.modId}")
 
-        val data = scanData.annotations.filter { annotationData ->
-            EVENT_BUS_SUBSCRIBER == annotationData.annotationType
-        }
+        val data = scanData.annotations.filter { it.annotationData == EVENT_BUS_SUBSCRIBER }
 
         for (annotationData in data) {
             val annotationMap = annotationData.annotationData
@@ -75,28 +75,26 @@ public object AutoKotlinEventBusSubscriber {
             if (mod.modId == modid && FMLEnvironment.dist in sides) {
                 val kClass = Class.forName(annotationData.clazz.className, true, classLoader).kotlin
 
-                var ktObject: Any?
-
-                try {
-                    ktObject = kClass.objectInstance
-                } catch (unsupported: UnsupportedOperationException) {
-                    if (unsupported.message?.contains("file facades") == false) {
-                        throw unsupported
-                    } else {
-                        LOGGER.debug(Logging.LOADING, "Auto-subscribing kotlin file ${annotationData.annotationType.className} to $busTarget")
-                        registerTo(kClass.java, busTarget, mod)
-                        continue
-                    }
+                val instance = try {
+                    kClass.objectInstance
+                } catch (_: UnsupportedOperationException) {
+                    null
                 }
 
-                if (ktObject != null) {
+                if (instance != null) {
                     try {
-                        LOGGER.debug(Logging.LOADING, "Auto-subscribing kotlin object ${annotationData.annotationType.className} to $busTarget")
+                        val lookup = MethodHandles.privateLookupIn(instance::class.java, MethodHandles.lookup())
+                        val bus = if (busTarget == Mod.EventBusSubscriber.Bus.FORGE) {
+                            busTarget.bus().get()
+                        } else {
+                            mod.busGroup
+                        }
+                        LOGGER.debug(LOADING, "Registering Kotlin object: ${annotationData.clazz.className} to $busTarget")
 
-                        registerTo(ktObject, busTarget, mod)
-                    } catch (e: Throwable) {
-                        LOGGER.fatal(Logging.LOADING, "Failed to load mod class ${annotationData.annotationType} for @EventBusSubscriber annotation", e)
-                        throw RuntimeException(e)
+                        bus?.register(lookup, instance)
+                    } catch (t: Throwable) {
+                        LOGGER.fatal(LOADING, "Failed to register Kotlin object ${annotationData.clazz.className}", t)
+                        throw RuntimeException(t)
                     }
                 }
             }
@@ -104,36 +102,29 @@ public object AutoKotlinEventBusSubscriber {
     }
 
     private fun getSides(annotationMap: Map<String, Any>): List<Dist> {
-        val sidesHolders = annotationMap["value"]
+        val sidesHolders = annotationMap["value"] ?: return listOf(Dist.CLIENT, Dist.DEDICATED_SERVER)
 
-        return if (sidesHolders != null) {
-            if (enumHolderGetValue != null) {
-                (sidesHolders as List<Any>).map { data -> Dist.valueOf(enumHolderGetValue.invoke(data) as String) }
-            } else {
-                (sidesHolders as List<EnumData>).map { data -> Dist.valueOf(data.value()) }
-            }
+        return if (enumHolderGetValue != null) {
+                (sidesHolders as List<*>).map { Dist.valueOf(enumHolderGetValue.invoke(it) as String) }
         } else {
-            listOf(Dist.CLIENT, Dist.DEDICATED_SERVER)
+                (sidesHolders as List<EnumData>).map { Dist.valueOf(it.value()) }
         }
     }
 
     private fun getBusTarget(annotationMap: Map<String, Any>): Mod.EventBusSubscriber.Bus {
-        val busTargetHolder = annotationMap["bus"]
+        val holder = annotationMap["bus"] ?: return Mod.EventBusSubscriber.Bus.FORGE
 
-        return if (busTargetHolder != null) {
-            if (enumHolderGetValue != null) {
-                Mod.EventBusSubscriber.Bus.valueOf(enumHolderGetValue.invoke(busTargetHolder) as String)
-            } else {
-                Mod.EventBusSubscriber.Bus.valueOf((busTargetHolder as EnumData).value)
-            }
+        return if (enumHolderGetValue != null) {
+            Mod.EventBusSubscriber.Bus.valueOf(enumHolderGetValue.invoke(holder) as String)
         } else {
-            Mod.EventBusSubscriber.Bus.FORGE
+            Mod.EventBusSubscriber.Bus.valueOf((holder as EnumData).value)
         }
     }
 
     private fun registerTo(any: Any, target: Mod.EventBusSubscriber.Bus, mod: KotlinModContainer) {
         if (target == Mod.EventBusSubscriber.Bus.FORGE) {
-            target.bus().get()!!.register(MethodHandles.lookup(), any)
+            val lookup = MethodHandles.privateLookupIn(any::class.java, MethodHandles.lookup())
+            target.bus().get()!!.register(lookup, any)
         } else {
             mod.busGroup.register(MethodHandles.lookup(), any)
         }
