@@ -2,6 +2,7 @@ package thedarkcolour.kotlinforforge.forge
 
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.common.ForgeConfigSpec
+import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.eventbus.api.bus.BusGroup
 import net.minecraftforge.eventbus.api.listener.EventListener
 import net.minecraftforge.eventbus.api.listener.Priority
@@ -25,6 +26,10 @@ import kotlin.reflect.KProperty
  *   @see net.minecraftforge.event.entity.living.LivingEvent
  *   @see net.minecraftforge.event.world.BlockEvent
  */
+
+public inline val FORGE_BUS: BusGroup
+    get() = MinecraftForge.EVENT_BUS
+
 
 /**
  * Mod-specific event bus.
