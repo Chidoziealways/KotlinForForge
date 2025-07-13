@@ -6,6 +6,7 @@ import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.eventbus.api.EventPriority
 import net.minecraftforge.eventbus.api.GenericEvent
 import net.minecraftforge.eventbus.api.IEventBus
+import net.minecraftforge.eventbus.api.bus.BusGroup
 import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.config.ModConfig
 import net.minecraftforge.fml.loading.FMLEnvironment

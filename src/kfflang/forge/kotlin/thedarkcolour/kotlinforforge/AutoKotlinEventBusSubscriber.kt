@@ -7,6 +7,7 @@ import net.minecraftforge.fml.loading.FMLEnvironment
 import net.minecraftforge.forgespi.language.ModFileScanData
 import net.minecraftforge.forgespi.language.ModFileScanData.EnumData
 import org.objectweb.asm.Type
+import java.lang.invoke.MethodHandles
 import java.lang.reflect.Method
 import java.util.*
 
@@ -132,9 +133,9 @@ public object AutoKotlinEventBusSubscriber {
 
     private fun registerTo(any: Any, target: Mod.EventBusSubscriber.Bus, mod: KotlinModContainer) {
         if (target == Mod.EventBusSubscriber.Bus.FORGE) {
-            target.bus().get().register(any)
+            target.bus().get()?.register(MethodHandles.lookup(), any)
         } else {
-            mod.eventBus.register(any)
+            mod.busGroup.register(MethodHandles.lookup(), any)
         }
     }
 }

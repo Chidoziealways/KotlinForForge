@@ -1,10 +1,10 @@
 package thedarkcolour.kotlinforforge
 
+import cpw.mods.jarhandling.SecureJar
 import net.minecraftforge.eventbus.EventBusErrorMessage
-import net.minecraftforge.eventbus.api.BusBuilder
 import net.minecraftforge.eventbus.api.Event
-import net.minecraftforge.eventbus.api.IEventBus
 import net.minecraftforge.eventbus.api.IEventListener
+import net.minecraftforge.eventbus.api.bus.BusGroup
 import net.minecraftforge.fml.Logging
 import net.minecraftforge.fml.ModContainer
 import net.minecraftforge.fml.ModLoadingException
@@ -12,9 +12,8 @@ import net.minecraftforge.fml.ModLoadingStage
 import net.minecraftforge.fml.event.IModBusEvent
 import net.minecraftforge.forgespi.language.IModInfo
 import net.minecraftforge.forgespi.language.ModFileScanData
-import java.util.*
-import java.util.function.Consumer
 import java.util.function.Supplier
+import java.util.jar.Attributes
 
 /**
  * Kotlin mod container
@@ -26,7 +25,7 @@ public class KotlinModContainer(
     gameLayer: ModuleLayer,
 ) : ModContainer(info) {
     private var modInstance: Any? = null
-    internal val busGroup: BusGroup
+    internal var busGroup: BusGroup
     private val modClass: Class<*>
     val ctx = KotlinModLoadingContext(this)
     private val implAddExportsOrOpens = Module::class.java.getDeclaredMethod(
@@ -38,13 +37,13 @@ public class KotlinModContainer(
     init {
         LOGGER.debug(Logging.LOADING, "Creating KotlinModContainer instance for $className")
         activityMap[ModLoadingStage.CONSTRUCT] = Runnable(::constructMod)
-        eventBus = BusGroup.create("modBusFor ${info.getModId()}")
+        busGroup = BusGroup.create("modBusFor ${info.getModId()}")
         contextExtension = Supplier {ctx}
 
         try {
             val moduleName = info.getOwningFile().moduleName()
             val layer = gameLayer.findModule(moduleName).orElseThrow()
-            openModules(gameLayer, layer, info.getOwningFile().getFile().secureJar())
+            openModules(gameLayer, layer, info.owningFile.file.secureJar)
             modClass = Class.forName(layer, className)
             LOGGER.trace(Logging.LOADING, "Loaded modclass {} with {}", modClass.name, modClass.classLoader)
         } catch (t: Throwable) {
@@ -86,13 +85,13 @@ public class KotlinModContainer(
     override fun getMod(): Any? = modInstance
 
     fun getModBusGroup(): BusGroup {
-        return eventBus
+        return busGroup
     }
 
     public override fun <T> acceptEvent(e: T) where T : Event, T : IModBusEvent {
         try {
             LOGGER.trace("Firing event for modid $modId : $e")
-            EventBus<T> eventBus = IModBusEvent.getBus(busGroup, e.getClass())
+            var eventBus = IModBusEvent.getBus(busGroup, e.javaClass)
             eventBus.post(e)
             LOGGER.trace("Fired event for modid $modId : $e")
         } catch (t: Throwable) {
@@ -102,7 +101,7 @@ public class KotlinModContainer(
     }
 
     private fun openModules(layer: ModuleLayer, self: Module, jar: SecureJar) {
-        val manifest = jar.moduleDataProvider.manifest.mainAttributes
+        val manifest = jar.moduleDataProvider().manifest.mainAttributes
         addOpenOrExports(layer, self, true, manifest)
         addOpenOrExports(layer, self, false, manifest)
     }

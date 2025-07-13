@@ -153,6 +153,7 @@ dependencies {
         if (name.contains("lang")) {
             dependencies.add(compileOnly, libs.asm)
             dependencies.add(compileOnly, libs.log4j.core)
+            dependencies.add(compileOnly, libs.secure.jar)
         }
     }
 }
