@@ -24,8 +24,6 @@ import kotlin.reflect.KProperty
  *   @see net.minecraftforge.event.entity.living.LivingEvent
  *   @see net.minecraftforge.event.world.BlockEvent
  */
-public inline val FORGE_BUS: IEventBus
-    get() = MinecraftForge.EVENT_BUS
 
 /**
  * Mod-specific event bus.
