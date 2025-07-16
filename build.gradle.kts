@@ -132,6 +132,7 @@ dependencies {
 
     // kffmod/forge
     "modForgeCompileOnly"(libs.log4j.core)
+    "modForgeCompileOnly"(sourceSets["langForge"].output)
 
 
     sourceSets.forEach { sourceSet ->

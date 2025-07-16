@@ -2,15 +2,19 @@ package thedarkcolour.kotlinforforge
 
 import cpw.mods.jarhandling.SecureJar
 import net.minecraftforge.eventbus.api.bus.BusGroup
+import net.minecraftforge.eventbus.api.bus.EventBus
+import net.minecraftforge.eventbus.api.event.InheritableEvent
 import net.minecraftforge.eventbus.internal.Event
 import net.minecraftforge.fml.Logging
 import net.minecraftforge.fml.ModContainer
 import net.minecraftforge.fml.ModLoadingException
 import net.minecraftforge.fml.ModLoadingStage
+import net.minecraftforge.fml.config.IConfigEvent
 import net.minecraftforge.fml.event.IModBusEvent
-import net.minecraftforge.fml.javafmlmod.FMLModContainer
 import net.minecraftforge.forgespi.language.IModInfo
 import net.minecraftforge.forgespi.language.ModFileScanData
+import net.minecraftforge.unsafe.UnsafeHacks
+import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.util.function.Supplier
 import java.util.jar.Attributes
@@ -37,11 +41,11 @@ public class KotlinModContainer(
         contextExtension = Supplier {ctx}
 
         try {
-            val moduleName = info.getOwningFile().moduleName()
-            val layer = gameLayer.findModule(moduleName).orElseThrow()
+            val moduleName = info.owningFile.moduleName()
+            val layer = gameLayer.findModule(moduleName).orElseThrow {IllegalStateException("Failed to find $moduleName in $gameLayer")}
             openModules(gameLayer, layer, info.owningFile.file.secureJar)
             modClass = Class.forName(layer, className)
-            LOGGER.trace(Logging.LOADING, "Loaded modclass {} with {}", modClass.name, modClass.classLoader)
+            LOGGER.trace(Logging.LOADING, "Loaded modclass {}/{} with {}", modClass.module.name, modClass.name, modClass.classLoader)
         } catch (t: Throwable) {
             LOGGER.error(Logging.LOADING, "Failed to load class $className", t)
             throw ModLoadingException(info, ModLoadingStage.CONSTRUCT, "fml.modloading.failedtoloadmodclass", t)
@@ -51,21 +55,21 @@ public class KotlinModContainer(
     // Sets modInstance to a new instance of the mod class or the object instance
     private fun constructMod() {
         try {
-            LOGGER.trace(Logging.LOADING, "Loading mod instance ${getModId()} of type ${modClass.name}")
-            modInstance = modClass.kotlin.objectInstance ?: modClass.getDeclaredConstructor().newInstance()
-            LOGGER.trace(Logging.LOADING, "Loaded mod instance ${getModId()} of type ${modClass.name}")
-        } catch (throwable: Throwable) {
-            LOGGER.error(Logging.LOADING, "Failed to create mod instance. ModID: ${getModId()}, class ${modClass.name}", throwable)
-            throw ModLoadingException(modInfo, ModLoadingStage.CONSTRUCT, "fml.modloading.failedtoloadmod", throwable, modClass)
-        }
-
-        try {
             LOGGER.trace(Logging.LOADING, "Injecting Automatic Kotlin event subscribers for ${getModId()}")
             // Inject into object EventBusSubscribers
             AutoKotlinEventBusSubscriber.inject(this, scanResults, modClass.classLoader)
             LOGGER.trace(Logging.LOADING, "Completed Automatic Kotlin event subscribers for ${getModId()}")
         } catch (throwable: Throwable) {
             LOGGER.error(Logging.LOADING, "Failed to register Automatic Kotlin subscribers. ModID: ${getModId()}, class ${modClass.name}", throwable)
+            throw ModLoadingException(modInfo, ModLoadingStage.CONSTRUCT, "fml.modloading.failedtoloadmod", throwable, modClass)
+        }
+
+        try {
+            LOGGER.trace(Logging.LOADING, "Loading mod instance ${getModId()} of type ${modClass.name}")
+            modInstance = modClass.kotlin.objectInstance ?: modClass.getDeclaredConstructor().newInstance()
+            LOGGER.trace(Logging.LOADING, "Loaded mod instance ${getModId()} of type ${modClass.name}")
+        } catch (throwable: Throwable) {
+            LOGGER.error(Logging.LOADING, "Failed to create mod instance. ModID: ${getModId()}, class ${modClass.name}", throwable)
             throw ModLoadingException(modInfo, ModLoadingStage.CONSTRUCT, "fml.modloading.failedtoloadmod", throwable, modClass)
         }
     }
@@ -76,11 +80,23 @@ public class KotlinModContainer(
 
     override fun getMod(): Any? = modInstance
 
-    fun getModBusGroup(): BusGroup {
+    public fun getModBusGroup(): BusGroup {
         return busGroup
     }
 
-    public fun <T> acceptEvent(e: T) where T : Event, T : IModBusEvent {
+    override fun toString(): String {
+        val name = modInfo.modId
+        return "FMLModContainer[$name, ${javaClass.name}]"
+    }
+
+    override fun dispatchConfigEvent(event: IConfigEvent) {
+        @Suppress("UNCHECKED_CAST")
+        val self = event.self() as InheritableEvent
+        val eventBus = EventBus.create( busGroup, self.javaClass)
+        eventBus.post(self)
+    }
+
+    override fun <T: IModBusEvent> acceptEvent(e: T){
         try {
             LOGGER.trace("Firing event for modid $modId : $e")
             var eventBus = IModBusEvent.getBus(busGroup, e.javaClass)
@@ -108,6 +124,8 @@ public class KotlinModContainer(
                 if (target != null && target.descriptor.packages().contains(pts[1])) {
                     addOpenOrExports(target, pts[1], self, open)
                 }
+            } else {
+                LOGGER.warn(LOADING, "Invalid {} entry in {}: {}", key, self.name, pair)
             }
         }
     }
@@ -122,9 +140,9 @@ public class KotlinModContainer(
             LOADING,
             "{} {}/{} to {}",
             if (open) "Opening" else "Exporting",
-            target.getName(),
+            target.name,
             pkg,
-            reader.getName()
+            reader.name
         )
         implAddExportsOrOpens?.invoke(target, pkg, reader, open, true)
     }
