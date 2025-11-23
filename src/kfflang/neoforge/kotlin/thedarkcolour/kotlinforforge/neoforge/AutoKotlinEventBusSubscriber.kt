@@ -13,6 +13,7 @@ import net.neoforged.fml.loading.FMLEnvironment
 import net.neoforged.fml.loading.FMLLoader
 import net.neoforged.neoforgespi.language.ModFileScanData
 import org.objectweb.asm.Type
+import thedarkcolour.kotlinforforge.common.KotlinMod
 import java.lang.reflect.Method
 import kotlin.reflect.full.*
 import kotlin.reflect.jvm.javaMethod
@@ -38,8 +39,8 @@ import kotlin.reflect.jvm.javaMethod
  */
 public object AutoKotlinEventBusSubscriber {
     // EventBusSubscriber annotation
-    private val EVENT_BUS_SUBSCRIBER: Type = Type.getType(EventBusSubscriber::class.java)
-    private val MOD: Type = Type.getType(Mod::class.java)
+    private val EVENT_BUS_SUBSCRIBER: Type = Type.getType(KotlinMod.KotlinEventBusSubscriber::class.java)
+    private val MOD: Type = Type.getType(KotlinMod::class.java)
 
     private const val MOD_BUS_TARGET = "MOD"
     private const val GAME_BUS_TARGET = "GAME"
@@ -58,7 +59,7 @@ public object AutoKotlinEventBusSubscriber {
     }
 
     private fun getNewGameBus(): IEventBus {
-        return FMLLoader.getBindings().gameBus
+        return FMLLoader.getCurrent().getBindings().gameBus
     }
 
     /**
@@ -92,7 +93,7 @@ public object AutoKotlinEventBusSubscriber {
             val className = annotationData.clazz.className
             val modid = annotationData.annotationData.getOrDefault("modid", modIds.getOrDefault(className, mod.modId))
 
-            if (mod.modId == modid && FMLEnvironment.dist in sides) {
+            if (mod.modId == modid && FMLEnvironment.getDist() in sides) {
                 val kClass = Class.forName(annotationData.clazz.className, true, layer.classLoader).kotlin
 
                 var ktObject: Any?

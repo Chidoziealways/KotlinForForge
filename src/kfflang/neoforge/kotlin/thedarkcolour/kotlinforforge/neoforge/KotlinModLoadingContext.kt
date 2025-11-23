@@ -6,7 +6,7 @@ import net.neoforged.fml.ModLoadingContext
 /**
  * Mod loading context for mods made with Kotlin for Forge.
  */
-public class KotlinModLoadingContext(private val container: KotlinModContainer) {
+public class KotlinModLoadingContext(public val container: KotlinModContainer) {
     /** Mods should access through [MOD_BUS] */
     public fun getKEventBus(): IEventBus {
         return container.eventBus

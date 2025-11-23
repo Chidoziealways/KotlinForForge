@@ -6,7 +6,7 @@ import thedarkcolour.kotlinforforge.KotlinModLoadingContext
 import java.lang.annotation.ElementType
 
 @KotlinMod("kotlinforforge")
-public class KotlinForForge(context: KotlinModLoadingContext) {
+public object KotlinForForge {
     private val LOGGER = LogManager.getLogger()
     init {
         LOGGER.info("Kotlin For Forge Enabled!")

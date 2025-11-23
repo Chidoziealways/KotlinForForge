@@ -13,6 +13,7 @@ import net.neoforged.neoforgespi.language.ModFileScanData
 import net.neoforged.neoforgespi.language.ModFileScanData.AnnotationData
 import net.neoforged.neoforgespi.locating.IModFile
 import org.objectweb.asm.Type
+import thedarkcolour.kotlinforforge.common.KotlinMod
 import java.lang.annotation.ElementType
 
 public class KotlinLanguageLoader : IModLanguageLoader {
@@ -20,7 +21,7 @@ public class KotlinLanguageLoader : IModLanguageLoader {
 
     // ? to avoid classloading kotlin Intrinsics
     override fun version(): String? {
-        return JarVersionLookupHandler.getVersion(this.javaClass).orElse("5.1.0")
+        return JarVersionLookupHandler.getVersion(this.javaClass).orElse("6.0.0")
     }
 
     override fun loadMod(info: IModInfo, modFileScanResults: ModFileScanData, layer: ModuleLayer): ModContainer {
@@ -28,8 +29,8 @@ public class KotlinLanguageLoader : IModLanguageLoader {
         val modClasses = modFileScanResults.annotations
             .filter { data ->
                 isAnnotatedByMod(data)
-                        && info.modId == data.annotationData.get("value")
-                        && AutomaticEventSubscriber.getSides(data.annotationData.get("dist")).contains(FMLLoader.getDist())
+                        && info.modId == data.annotationData["value"]
+                        && AutomaticEventSubscriber.getSides(data.annotationData["dist"]).contains(FMLLoader.getCurrent().dist)
             }
             .map { data -> data.clazz.className }
 
@@ -57,6 +58,6 @@ public class KotlinLanguageLoader : IModLanguageLoader {
 
     private companion object {
         @JvmStatic
-        private val MOD_TYPE = Type.getType(Mod::class.java)
+        private val MOD_TYPE = Type.getType(KotlinMod::class.java)
     }
 }

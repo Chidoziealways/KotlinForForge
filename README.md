@@ -3,8 +3,8 @@
 
 Makes Kotlin Forge-friendly by doing the following:
 - Provides Kotlin stdlib, reflection, JSON serialization, and coroutines libraries.
-- Provides `KotlinLanguageLoader` to allow usage of object declarations as @Mod targets.
-- Provides `AutoKotlinEventBusSubscriber` to allow usage of object declarations as @EventBusSubscriber targets.
+- Provides `KotlinLanguageLoader` to allow usage of object declarations as @KotlinMod targets.
+- Provides `AutoKotlinEventBusSubscriber` to allow usage of object declarations as @KotlinEventBusSubscriber targets.
 - Provides useful utility functions and constants
 
 To see which versions of the Kotlin libraries is bundled with a particular version of KFF, check the [DEPENDENCY CHART](https://docs.google.com/spreadsheets/d/1v8K90PBa5qPFrlHBA8PSqlBTYCcp078o5E2XQbt5BUs/edit?usp=sharing).

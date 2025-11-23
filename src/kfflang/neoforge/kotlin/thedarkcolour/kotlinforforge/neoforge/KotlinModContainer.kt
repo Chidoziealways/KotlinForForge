@@ -39,7 +39,7 @@ public class KotlinModContainer(
             .markerType(IModBusEvent::class.java)
             .allowPerPhasePost()
             .build()
-        this.layer = gameLayer.findModule(info.owningFile.moduleName()).orElseThrow()
+        this.layer = gameLayer.findModule(info.owningFile.file.id).orElseThrow()
 
         this.context = KotlinModLoadingContext(this)
         // Backwards compatibility with FancyModLoader 3.x
@@ -88,7 +88,7 @@ public class KotlinModContainer(
                         IEventBus::class.java to eventBus,
                         ModContainer::class.java to this,
                         FMLModContainer::class.java to this,
-                        Dist::class.java to FMLLoader.getDist()
+                        Dist::class.java to FMLLoader.getCurrent().dist
                     )
 
                     val paramTypes = constructor.parameterTypes

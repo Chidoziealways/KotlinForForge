@@ -196,6 +196,7 @@ registerArtifact<Jar>("langNeoForgeJar", "kfflang-neoforge", "langNeoForge") {
         attributes(
             mapOf(
                 "FMLModType" to "LIBRARY",
+                "Automatic-Module-Name" to "thedarkcolour.kotlinforforge.lang.neoforge",
                 "Implementation-Version" to version
             )
         )
@@ -227,25 +228,31 @@ registerArtifact<ShadowJar>("libNeoForgeJar", "kfflib-neoforge", "libCommon", "l
     relocate("thedarkcolour.kotlinforforge.kotlin", "thedarkcolour.kotlinforforge.neoforge.kotlin")
 
     manifest {
-        attributes(mapOf("FMLModType" to "GAMELIBRARY"))
+        attributes(mapOf("FMLModType" to "GAMELIBRARY", "Automatic-Module-Name" to "thedarkcolour.kotlinforforge.lib.neoforge"))
     }
 }
 
 // kfflib-forge
 registerArtifact<Jar>("libForgeJar", "kfflib-forge", "libForge", "libCommon") {
     manifest {
-        attributes(mapOf("FMLModType" to "GAMELIBRARY"))
+        attributes(mapOf("FMLModType" to "GAMELIBRARY", "Automatic-Module-Name" to "thedarkcolour.kotlinforforge.lib"))
     }
 }
 
 // kffmod-neoforge
 registerArtifact<Jar>("modNeoForgeJar", "kffmod-neoforge", "modCommon", "modNeoForge") {
     exclude("META-INF/mods.toml")
+    manifest {
+        attributes(mapOf("Automatic-Module-Name" to "thedarkcolour.kotlinforforge.mod.neoforge"))
+    }
 }
 
 // kffmod-forge
 registerArtifact<Jar>("modForgeJar", "kffmod-forge", "modCommon", "modForge") {
     exclude("META-INF/neoforge.mods.toml")
+    manifest {
+        attributes(mapOf("Automatic-Module-Name" to "thedarkcolour.kotlinforforge.mod"))
+    }
 }
 
 //
